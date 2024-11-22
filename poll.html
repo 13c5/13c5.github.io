@@ -50,7 +50,7 @@
             for (let date = new Date(d); date <= oneMonthLater; date.setDate(date.getDate() + 1)) {
                 const day = date.getDay(); // 0: 日曜, 6: 土曜
                 if (day === 0 || day === 6) {
-                  command += `question_${abc[cnt]}: ${formatDate(date)} `;
+                  command += `choice_${abc[cnt]}: ${formatDate(date)} `;
                   cnt += 1;
                 }
             }
