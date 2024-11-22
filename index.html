@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LECS 開催日アンケート自動生成</title>
+    <style>
+      code {
+          display: inline-block;
+          background-color: #f4f4f4;
+          padding: 5px;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+  </style>
+</head>
+<body>
+    <h1>LECS 開催日アンケート自動生成</h1>
+    <form id="date">
+        <label for="inputDate">起点となる日付を入力してください:</label>
+        <input type="date" id="inputDate" required>
+        <button type="submit">コマンド生成</button>
+    </form>
+    <p>Discord に貼るコマンド (クリックでコピー)</p>
+    <!-- e.g., /poll question: 次回 LT 開催日 choice_a: 2024-12-07 (土) choice_b: 2024-12-08 (日) ... -->
+    <code id="command"></code>
+
+    <script>
+        function formatDate(date) {
+            // 年、月、日を取得
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 月は0始まり
+            const day = String(date.getDate()).padStart(2, '0');
+
+            // 曜日を取得
+            const days = ['日', '月', '火', '水', '木', '金', '土'];
+            const dayOfWeek = days[date.getDay()];
+
+            // フォーマット
+            return `${year}-${month}-${day} (${dayOfWeek})`;
+        }
+
+        function generateCommand(d) {
+            const oneMonthLater = new Date(d);
+            oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+
+            let command = "/poll question: 次回 LT 開催日 ";
+            const abc = "abcdefghijklmnopqrstuvwxyz";
+            let cnt = 0;
+            for (let date = new Date(d); date <= oneMonthLater; date.setDate(date.getDate() + 1)) {
+                const day = date.getDay(); // 0: 日曜, 6: 土曜
+                if (day === 0 || day === 6) {
+                  command += `question_${abc[cnt]}: ${formatDate(date)} `;
+                  cnt += 1;
+                }
+            }
+            return command;
+        }
+
+
+        document.getElementById('date').addEventListener('submit', function(event) {
+            event.preventDefault(); // フォームの送信を防ぐ
+
+            const inputDate = new Date(document.getElementById('inputDate').value);
+
+            if (isNaN(inputDate)) {
+                alert('有効な日付を入力してください。');
+                return;
+            }
+            const commandElement = document.getElementById('command');
+            commandElement.textContent = generateCommand(inputDate);
+        });
+
+        document.getElementById('command').addEventListener('click', async function() {
+            const textToCopy = this.textContent; // コピーするテキストを取得
+
+            try {
+                // Clipboard APIを使用してコピー
+                await navigator.clipboard.writeText(textToCopy);
+                alert('コピーしました: ' + textToCopy);
+            } catch (err) {
+                console.error('コピーエラー:', err);
+                alert('コピーに失敗しました。');
+            }
+        });
+
+        // 今日の日付を取得
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); // 月は0始まりなので+1
+        const dd = String(today.getDate()).padStart(2, '0');
+
+        // フォーマット: yyyy-mm-dd
+        const formattedDate = `${yyyy}-${mm}-${dd}`;
+
+        // input要素にデフォルト値として設定
+        document.getElementById('inputDate').value = formattedDate;
+
+        const commandElement = document.getElementById('command');
+        commandElement.textContent = generateCommand(today);
+    </script>
+</body>
+</html>
