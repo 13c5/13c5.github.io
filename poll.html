@@ -19,7 +19,6 @@
     <form id="date">
         <label for="inputDate">起点となる日付を入力してください:</label>
         <input type="date" id="inputDate" required>
-        <button type="submit">コマンド生成</button>
     </form>
     <p>Discord に貼るコマンド (クリックでコピー)</p>
     <!-- e.g., /poll question: 次回 LT 開催日 choice_a: 2024-12-07 (土) choice_b: 2024-12-08 (日) ... -->
@@ -58,7 +57,7 @@
         }
 
 
-        document.getElementById('date').addEventListener('submit', function(event) {
+        document.getElementById('date').addEventListener('change', function(event) {
             event.preventDefault(); // フォームの送信を防ぐ
 
             const inputDate = new Date(document.getElementById('inputDate').value);
