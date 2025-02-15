@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord リマインダー自動生成ツール</title>
+  <style>
+    code {
+      display: block;
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Discord リマインダー自動生成ツール</h1>
+  <form id="reminderForm">
+    <label for="inputDate">起点日付を入力してください:</label>
+    <input type="date" id="inputDate" required>
+  </form>
+  <p>以下のコマンドをコピーしてください (クリックでコピー)</p>
+  <code id="command1"></code>
+  <code id="command2"></code>
+  <code id="command3"></code>
+
+  <script>
+    function formatFull(date) {
+      return date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+    }
+    function formatMD(date) {
+      return (date.getMonth() + 1) + "/" + date.getDate();
+    }
+    function generateCommands(dateString) {
+      let eventDate = new Date(dateString);
+      let deadline = new Date(eventDate);
+      deadline.setDate(eventDate.getDate() - 7);
+      let firstReminder = new Date(deadline);
+      firstReminder.setDate(deadline.getDate() - 3);
+
+      let cmd1 = `/remind time: ${formatFull(firstReminder)} 5:00 content: 【リマインダー】${formatMD(eventDate)}に発表希望の方は、${formatMD(deadline)} 17:00までに#lt-eventに名前と発表題目をご記入ください。\n\n========== テンプレート ==========\n名前：YAMADA Taro\n題目：苦しんで覚える蟹飯の作り方\n================================= channels: <#973128831491780638>`;
+      
+      let cmd2 = `/remind time: ${formatFull(deadline)} 5:00 content: 【リマインダー】${formatMD(eventDate)}に発表希望の方は、本日17:00までに#lt-eventに名前と発表題目をご記入ください。\n\n========== テンプレート ==========\n名前：YAMADA Taro\n題目：苦しんで覚える蟹飯の作り方\n================================= channels: <#973128831491780638>`;
+      
+      let cmd3 = `/remind time: ${formatFull(eventDate)} 5:00 content: 【リマインダー】本日の15:30から青木研ゼミ室でLT会を開催します。 channels: <#973128831491780638>`;
+
+      return [cmd1, cmd2, cmd3];
+    }
+
+    function updateCommands() {
+      const input = document.getElementById('inputDate').value;
+      if (!input) return;
+      const cmds = generateCommands(input);
+      document.getElementById('command1').innerText = cmds[0];
+      document.getElementById('command2').innerText = cmds[1];
+      document.getElementById('command3').innerText = cmds[2];
+    }
+
+    document.getElementById('reminderForm').addEventListener('change', function(e) {
+      e.preventDefault();
+      updateCommands();
+    });
+
+    function addCopyListener(id) {
+      document.getElementById(id).addEventListener('click', function(){
+        navigator.clipboard.writeText(this.innerText).then(function(){
+          alert('コピーしました: ' + document.getElementById(id).innerText);
+        }).catch(function(err){
+          alert('コピーに失敗しました。');
+        });
+      });
+    }
+    addCopyListener('command1');
+    addCopyListener('command2');
+    addCopyListener('command3');
+
+    function setToday() {
+      let today = new Date();
+      let yyyy = today.getFullYear();
+      let mm = String(today.getMonth() + 1).padStart(2, '0');
+      let dd = String(today.getDate()).padStart(2, '0');
+      let formatted = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('inputDate').value = formatted;
+    }
+    setToday();
+    updateCommands();
+  </script>
+</body>
+</html>
